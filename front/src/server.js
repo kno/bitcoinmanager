@@ -9,12 +9,21 @@ const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
 
 const server = express();
 server.use(express.json());
+
+const security = (req, res, next) => {
+  console.log(process.env.SECRET)
+  if (req.headers.authorization != process.env.SECRET) {
+    res.status(401).send();
+  } else {
+    next();
+  }
+}
+
 server
   .disable("x-powered-by")
   .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
 
-  .get("/api", (req, res) => {
-    console.log("root");
+  .get("/api", security, (req, res) => {
     connection.query("select * from trade").then(
       (rows, fields) => {
         console.log("query executed");
@@ -28,7 +37,7 @@ server
     );
   })
 
-  .post("/api", (req, res) => {
+  .post("/api", security, (req, res) => {
     connection
       .query("INSERT INTO trade SET ?", req.body)
       .then((error, results, fields) => {
@@ -39,7 +48,7 @@ server
       });
   })
 
-  .delete("/api/:id", (req, res) => {
+  .delete("/api/:id", security, (req, res) => {
     connection
       .query("DELETE FROM trade where id = ?", req.params.id)
       .then((error, results, fields) => {

@@ -1,19 +1,23 @@
 import { AppBar, Toolbar } from "@material-ui/core";
 import { AddIcon, DataGrid } from "@material-ui/data-grid";
 import CachedIcon from "@material-ui/icons/Cached";
-import DeleteIcon from '@material-ui/icons/Delete';
+import DeleteIcon from "@material-ui/icons/Delete";
 import { format, isValid, parseISO } from "date-fns";
-import fetch from "node-fetch";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Add from "./Add";
 import "./Home.css";
 import logo from "../assets/bitcoinlogo.svg";
+import Login from "./Login";
+import { setThePassword } from "whatwg-url";
 
 const Home = () => {
   const [trades, setTrades] = useState([]);
   const [totals, setTotals] = useState([]);
   const [open, setOpen] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
   const [rate, setRate] = useState(0);
+  const [password, setPassword] = useState();
 
   const columns = [
     { field: "date", headerName: "Date", width: 130 },
@@ -27,18 +31,17 @@ const Home = () => {
       headerName: "Actions",
       width: 150,
       renderCell: (a) => {
-        return (
-          a.row.id &&
-            <DeleteIcon onClick={() => deleteRow(a.row.id)} />
-        );
+        return a.row.id && <DeleteIcon onClick={() => deleteRow(a.row.id)} />;
       },
     },
   ];
 
   const deleteRow = async (id) => {
     try {
-      const res = await fetch("/api/" + id, {
-        method: "delete",
+      const res = await axios.delete("/api/" + id, {
+        headers: {
+          Authorization: password,
+        },
       });
       getTrades();
     } catch (err) {
@@ -48,10 +51,10 @@ const Home = () => {
 
   const getRate = async () => {
     try {
-      const res = await fetch(
+      const res = await axios.get(
         "https://api.binance.com/api/v3/depth?symbol=BTCEUR&limit=5"
       );
-      const data = await res.json();
+      const data = await res.data;
       setRate(data.bids[0][0]);
     } catch (err) {
       console.log(err);
@@ -66,7 +69,7 @@ const Home = () => {
           ...d,
           date: isValid(parsedDate) ? format(parsedDate, "dd/MM/yyyy") : d.date,
           value: d.btc * rate,
-          benefit: (d.btc * rate) - d.amount
+          benefit: d.btc * rate - d.amount,
         };
       })
     );
@@ -74,11 +77,22 @@ const Home = () => {
 
   const getTrades = async () => {
     try {
-      const res = await fetch("/api");
-      const data = await res.json();
-      mapData(data.rows);
-    } catch (err) {
-      console.log(err);
+      const res = await axios.get("/api", {
+        headers: {
+          Authorization: password,
+        },
+      });
+      if (res) {
+        const data = await res.data;
+        mapData(data.rows);
+      } else {
+        console.log("res", res);
+      }
+    } catch (error) {
+      if (error.response.status === 401) {
+        setShowLogin(true);
+      }
+      console.log(error);
     }
   };
 
@@ -95,7 +109,7 @@ const Home = () => {
   const onCloseAddHandler = () => {
     setOpen(false);
     getTrades();
-  }
+  };
 
   useEffect(() => {
     if (!trades.length) {
@@ -106,12 +120,22 @@ const Home = () => {
   }, [rate]);
 
   useEffect(() => {
+    getTrades();
+  }, [password]);
+
+  useEffect(() => {
     getRate();
   }, []);
 
+  const onLoginHandler = (password) => {
+    setPassword(password);
+    setShowLogin(false);
+  };
+
   return (
     <div className="Home">
-      <Add open={open} onClose={onCloseAddHandler} />
+      <Login open={showLogin} onClose={getTrades} onLogin={onLoginHandler} />
+      <Add open={open} onClose={onCloseAddHandler} password={password} />
       <div className="Home-header">
         <img src={logo} className="Home-logo" alt="logo" />
         <h2>Welcome to Bitcoin</h2>
@@ -120,16 +144,13 @@ const Home = () => {
         <AppBar position="static">
           <Toolbar>
             <AddIcon onClick={() => setOpen(true)} />
-            <div className={"grow"}>
-              Current Rate: {rate}
-            </div>
+            <div className={"grow"}>Current Rate: {rate}</div>
             <CachedIcon onClick={getRate} />
           </Toolbar>
         </AppBar>
       </div>
       <DataGrid autoHeight rows={trades.concat(totals)} columns={columns} />
-      <ul className="Home-resources">
-      </ul>
+      <ul className="Home-resources"></ul>
     </div>
   );
 };

@@ -10,13 +10,13 @@ import {
   KeyboardDatePicker,
   MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
+import axios from "axios";
 import { format } from "date-fns";
 import esLocale from "date-fns/locale/es";
-import fetch from "node-fetch";
 import React, { useState } from "react";
 import "./Add.css";
 
-const Add = ({ open, onClose }) => {
+const Add = ({ open, onClose, password }) => {
   const [newData, setNewData] = useState({
     date: new Date(),
   });
@@ -46,14 +46,19 @@ const Add = ({ open, onClose }) => {
 
   const handleAddButtonClick = async () => {
     try {
-      const res = await fetch("/api", {
-        method: "post",
-        body: JSON.stringify({
+      const res = await axios.post(
+        "/api",
+        JSON.stringify({
           ...newData,
           date: format(newData.date, "yyyy-MM-dd HH-mm-ss"),
         }),
-        headers: { "Content-Type": "application/json" },
-      });
+        {
+          headers: {
+            Authorization: password,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       onClose && onClose();
     } catch (err) {
       console.log(err);

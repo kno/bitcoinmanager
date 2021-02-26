@@ -1,0 +1,43 @@
+import { Button, Dialog, TextField } from "@material-ui/core";
+import MuiDialogActions from "@material-ui/core/DialogActions";
+import MuiDialogContent from "@material-ui/core/DialogContent";
+import MuiDialogTitle from "@material-ui/core/DialogTitle";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+import React, { useState } from "react";
+
+const Login = ({ open, onClose, onLogin }) => {
+
+  const [password, setPassword] = useState();
+
+  const handleLoginButtonClick = () => {
+    onLogin(password);
+  };
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
+
+  return (
+    <Dialog open={open}>
+      <MuiDialogTitle>
+        Login
+        <IconButton aria-label="close" onClick={onClose} className={"close"}>
+          <CloseIcon />
+        </IconButton>
+      </MuiDialogTitle>
+      <MuiDialogContent>
+        <TextField
+          label="Secret Password"
+          onChange={handlePasswordChange}
+        ></TextField>
+      </MuiDialogContent>
+      <MuiDialogActions>
+        <Button color="primary" onClick={handleLoginButtonClick}>
+          Login
+        </Button>
+      </MuiDialogActions>
+    </Dialog>
+  );
+};
+
+export default Login;

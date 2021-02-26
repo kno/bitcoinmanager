@@ -33,6 +33,12 @@
   flex-grow: 1;
 }
 
+.close {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+}
+
 @keyframes Home-logo-spin {
   from {
     transform: rotate(0deg);
