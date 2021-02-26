@@ -9,7 +9,6 @@ import Add from "./Add";
 import "./Home.css";
 import logo from "../assets/bitcoinlogo.svg";
 import Login from "./Login";
-import { setThePassword } from "whatwg-url";
 
 const Home = () => {
   const [trades, setTrades] = useState([]);
