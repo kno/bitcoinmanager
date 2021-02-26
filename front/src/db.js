@@ -1,11 +1,6 @@
 import mysql from "mysql";
 console.log(process.env);
-const connection = mysql.createPool({
-  host: process.env.MYSQL_SERVER || "localhost",
-  user: process.env.MYSQL_USER || "root",
-  password: process.env.MYSQL_PASSWORD || "changeme",
-  database: "trade",
-});
+const connection = mysql.createPool(process.env.MYSQL_CONNECTION_STRING);
 
 connection.on("error", function (err) {
   connection.connect();
