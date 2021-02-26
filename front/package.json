@@ -6,8 +6,7 @@
     "dev": "razzle start",
     "build": "razzle build",
     "test": "razzle test --env=jsdom",
-    "start": "NODE_ENV=production node build/server.js",
-    "heroku-postbuild": "yarn run build"
+    "start": "NODE_ENV=production node build/server.js"
   },
   "dependencies": {
     "@date-io/date-fns": "1.3.13",
