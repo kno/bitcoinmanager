@@ -1,0 +1,21 @@
+version: "3.9" # optional since v1.27.0
+services:
+  front:
+    build: .
+    command: "yarn run start:prod"
+    restart: always
+    ports:
+      - 3000:3000
+      - 3001:3001
+    environment:
+      - MYSQL_SERVER=mariadb
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=changeme
+  mariadb:
+    image: "mariadb:latest"
+    volumes:
+      - ./mariadb_data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=kno.kno
+    ports:
+      - 3306:3306
