@@ -4,16 +4,31 @@ import MuiDialogContent from "@material-ui/core/DialogContent";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
+import axios from "axios";
 import React, { useState } from "react";
 import "./Login.scss";
 
-const Login = ({ open, onClose, onLogin }) => {
+const Login = ({ open, onClose, onLogin, error }) => {
   const [loginData, setLoginData] = useState({});
 
   const handleLoginButtonClick = () => {
     localStorage.setItem("loginData", JSON.stringify(loginData));
     onLogin(loginData);
   };
+
+  const handleRegisterButtonClick = async () => {
+    try {
+      const res = await axios.post("/api/users", JSON.stringify(loginData), {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      onLogin(loginData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleUsernameChange = (event) => {
     setLoginData({
       ...loginData,
@@ -44,19 +59,27 @@ const Login = ({ open, onClose, onLogin }) => {
       </MuiDialogTitle>
       <MuiDialogContent>
         <TextField
+          error={error}
           label="Username"
           onChange={handleUsernameChange}
           autoFocus
           fullWidth
+          helperText={error && "Incorrect Login/password"}
         ></TextField>
         <TextField
+          error={error}
           label="Password"
+          type="password"
           onChange={handlePasswordChange}
           onKeyPress={handlePasswordKeyPress}
+          helperText={error && "Incorrect Login/password"}
           fullWidth
         ></TextField>
       </MuiDialogContent>
       <MuiDialogActions>
+        <Button color="primary" onClick={handleRegisterButtonClick}>
+          Register
+        </Button>
         <Button color="primary" onClick={handleLoginButtonClick}>
           Login
         </Button>

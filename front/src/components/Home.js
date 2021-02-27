@@ -18,6 +18,7 @@ const Home = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [rate, setRate] = useState(0);
   const [loginData, setLoginData] = useState({});
+  const [authError, setAuthError] = useState(false)
 
   const columns = [
     { field: "date", headerName: "Date", width: 130 },
@@ -95,7 +96,9 @@ const Home = () => {
       }
     } catch (error) {
       if (error.response.status === 401) {
+        setAuthError(true);
         setShowLogin(true);
+        localStorage.removeItem("loginData");
       }
       console.log(error);
     }
@@ -145,14 +148,15 @@ const Home = () => {
   };
 
   const logout = () => {
-    localStorage.removeItem("password");
+    localStorage.removeItem("loginData");
     setLoginData({});
     setTrades([]);
+    setAuthError(false);
   };
 
   return (
     <div className="Home">
-      <Login open={showLogin} onClose={getTrades} onLogin={onLoginHandler} />
+      <Login open={showLogin} error={authError} onClose={getTrades} onLogin={onLoginHandler} />
       <Add open={open} onClose={onCloseAddHandler} loginData={loginData} />
       <div className="Home-header">
         <img src={logo} className="Home-logo" alt="logo" />

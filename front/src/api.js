@@ -11,7 +11,7 @@ const security = (req, res, next) => {
       )
       .then((results, error, fields) => {
         console.log(error, results, fields);
-        if (!results) {
+        if (!results || results.length === 0) {
           res.status(401).send();
         } else {
           req.params.userId = results[0].id;
@@ -66,6 +66,20 @@ Api.get("/", security, (req, res) => {
           res.send(results);
         }
       });
-  });
+  })
+
+  .post("/users", (req, res) => {
+    connection
+      .query("INSERT INTO users SET ?", req.body)
+      .then((results, error, fields) => {
+        if (error) {
+          res.status(500).send();
+        } else {
+          res.send(results);
+        }
+      })
+  })
+
+  ;
 
 export default Api;
