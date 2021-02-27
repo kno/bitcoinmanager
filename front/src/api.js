@@ -1,54 +1,71 @@
-"use strict";
+import Router from "express";
+import connection from "./db.js";
 
-import cors from "cors";
-import express from "express";
-import connection from "../../src/db.js";
+const security = (req, res, next) => {
+  const loginData = JSON.parse(req.headers.authorization);
+  if (loginData.username && loginData.password) {
+    connection
+      .query(
+        "SELECT * FROM users WHERE username = ? AND password = ? LIMIT 1",
+        [loginData.username, loginData.password]
+      )
+      .then((results, error, fields) => {
+        console.log(error, results, fields);
+        if (!results) {
+          res.status(401).send();
+        } else {
+          req.params.userId = results[0].id;
+          next();
+        }
+      });
+  } else {
+    res.status(401).send();
+  }
+};
 
-// Constants
-const PORT = process.env.PORT || 8080;
-const HOST = process.env.IP || "0.0.0.0";
-
-// App
-const app = express();
-app.use(cors());
-app.use(express.json());
-
-app.get("/api", (req, res) => {
-  console.log("root");
-  connection.query("select * from trade").then(
-    (rows, fields) => {
-      console.log("query executed");
-      console.log(fields, rows);
-      res.json({ rows: rows, fields: fields });
-    },
-    (err) => {
-      console.log(err);
-      res.send(err);
-    }
-  );
-});
-
-app.post("/api", (req, res) => {
-  connection.query("INSERT INTO trade SET ?", req.body).then(
-    (error, results, fields) => {
-      if (error) {
-        res.send(error);
+const Api = Router();
+Api.get("/", security, (req, res) => {
+  connection
+    .query("SELECT * FROM trade WHERE userId = ?", [req.params.userId])
+    .then(
+      (rows, fields) => {
+        console.log("query executed");
+        console.log(fields, rows);
+        res.json({ rows: rows, fields: fields });
+      },
+      (err) => {
+        console.log(err);
+        res.send(err);
       }
-      res.send(results);
-    }
-  )
-});
+    );
+})
 
-app.delete('/api/:id', (req,res) => {
-  connection.query("DELETE FROM trade where id = ?", req.params.id).then(
-    (error, results, fields) => {
-      if (error) {
-        res.send(error);
-      }
-      res.send(results);
-    }
-  )
-});
+  .post("/", security, (req, res) => {
+    req.body.userId = req.params.userId;
+    connection
+      .query("INSERT INTO trade SET ?", req.body)
+      .then((results, error, fields) => {
+        if (error) {
+          res.status(500).send(error);
+        } else {
+          res.send(results);
+        }
+      });
+  })
 
-app.listen(PORT, HOST);
-console.log(`Running on http://${HOST}:${PORT}`);
+  .delete("/:id", security, (req, res) => {
+    connection
+      .query("DELETE FROM trade WHERE id = ? AND userId = ?", [
+        req.params.id,
+        req.params.userId,
+      ])
+      .then((results, error, fields) => {
+        if (error) {
+          res.status(500).send(error);
+        } else {
+          res.send(results);
+        }
+      });
+  });
+
+export default Api;

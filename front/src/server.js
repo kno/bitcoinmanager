@@ -3,82 +3,17 @@ import React from "react";
 import { StaticRouter } from "react-router-dom";
 import express from "express";
 import { renderToString } from "react-dom/server";
-import connection from "./db.js";
+import Api from "./api";
 
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
 
 const server = express();
 server.use(express.json());
 
-const security = (req, res, next) => {
-  const loginData = JSON.parse(req.headers.authorization);
-  if (loginData.username && loginData.password) {
-    connection
-      .query(
-        "SELECT * FROM users WHERE username = ? AND password = ? LIMIT 1",
-        [loginData.username, loginData.password]
-      )
-      .then((results, error, fields) => {
-        console.log(error, results, fields);
-        if (!results) {
-          res.status(401).send();
-        } else {
-          req.params.userId = results[0].id;
-          next();
-        }
-      });
-  } else {
-    res.status(401).send();
-  }
-};
-
 server
   .disable("x-powered-by")
   .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
-
-  .get("/api", security, (req, res) => {
-    connection
-      .query("SELECT * FROM trade WHERE userId = ?", [req.params.userId])
-      .then(
-        (rows, fields) => {
-          console.log("query executed");
-          console.log(fields, rows);
-          res.json({ rows: rows, fields: fields });
-        },
-        (err) => {
-          console.log(err);
-          res.send(err);
-        }
-      );
-  })
-
-  .post("/api", security, (req, res) => {
-    req.body.userId = req.params.userId;
-    connection
-      .query("INSERT INTO trade SET ?", req.body)
-      .then((results, error, fields) => {
-        if (error) {
-          res.status(500).send(error);
-        } else {
-          res.send(results);
-        }
-      });
-  })
-
-  .delete("/api/:id", security, (req, res) => {
-    connection
-      .query("DELETE FROM trade WHERE id = ? AND userId = ?", [
-        req.params.id,
-        req.params.userId,
-      ])
-      .then((results, error, fields) => {
-        if (error) {
-          res.status(500).send(error);
-        } else {
-          res.send(results);
-        }
-      });
-  })
+  .use('/api', Api)
 
   .get("/*", (req, res) => {
     const context = {};
