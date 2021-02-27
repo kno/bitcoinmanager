@@ -2,14 +2,15 @@ import { AppBar, Toolbar } from "@material-ui/core";
 import { AddIcon, DataGrid } from "@material-ui/data-grid";
 import CachedIcon from "@material-ui/icons/Cached";
 import DeleteIcon from "@material-ui/icons/Delete";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import axios from "axios";
 import { format, isValid, parseISO } from "date-fns";
 import React, { useEffect, useState } from "react";
 import logo from "../assets/bitcoinlogo.svg";
+import { decryptTrade } from "../crypt";
 import Add from "./Add";
 import "./Home.css";
 import Login from "./Login";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 
 const Home = () => {
   const [trades, setTrades] = useState([]);
@@ -18,7 +19,7 @@ const Home = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [rate, setRate] = useState(0);
   const [loginData, setLoginData] = useState({});
-  const [authError, setAuthError] = useState(false)
+  const [authError, setAuthError] = useState(false);
 
   const columns = [
     { field: "date", headerName: "Date", width: 130 },
@@ -65,12 +66,19 @@ const Home = () => {
   const mapData = (data) => {
     setTrades(
       data.map((d) => {
-        const parsedDate = parseISO(d.date);
+        if (d.decrypted) {
+          return d;
+        }
+        const decryptedTrade = decryptTrade(d, loginData.password);
+        const parsedDate = parseISO(decryptedTrade.date);
         return {
-          ...d,
-          date: isValid(parsedDate) ? format(parsedDate, "dd/MM/yyyy") : d.date,
-          value: d.btc * rate,
-          benefit: d.btc * rate - d.amount,
+          ...decryptedTrade,
+          date: isValid(parsedDate)
+            ? format(parsedDate, "dd/MM/yyyy")
+            : decryptedTrade.date,
+          value: decryptedTrade.btc * rate,
+          benefit: decryptedTrade.btc * rate - decryptedTrade.amount,
+          decrypted: true
         };
       })
     );
@@ -107,6 +115,7 @@ const Home = () => {
   useEffect(() => {
     setTotals({
       id: 0,
+      date: "Total:",
       amount: trades.reduce((a, b) => a + b.amount, 0),
       btc: trades.reduce((a, b) => a + b.btc, 0),
       value: trades.reduce((a, b) => a + b.value, 0),
@@ -156,7 +165,12 @@ const Home = () => {
 
   return (
     <div className="Home">
-      <Login open={showLogin} error={authError} onClose={getTrades} onLogin={onLoginHandler} />
+      <Login
+        open={showLogin}
+        error={authError}
+        onClose={getTrades}
+        onLogin={onLoginHandler}
+      />
       <Add open={open} onClose={onCloseAddHandler} loginData={loginData} />
       <div className="Home-header">
         <img src={logo} className="Home-logo" alt="logo" />

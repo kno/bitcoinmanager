@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import Router from "express";
 import connection from "./db.js";
+import { cryptTrade } from "./crypt";
 
 const saltRounds = 10;
 
@@ -23,6 +24,7 @@ const security = async (req, res, next) => {
             );
             if (passwordOk) {
               req.params.userId = results[0].id;
+              req.params.password = loginData.password;
               next();
             } else {
               res.status(401).send();
@@ -55,8 +57,9 @@ Api.get("/", security, (req, res) => {
 
   .post("/", security, (req, res) => {
     req.body.userId = req.params.userId;
+    const cryptedTrade = cryptTrade(req.body, req.params.password);
     connection
-      .query("INSERT INTO trade SET ?", req.body)
+      .query("INSERT INTO trade SET ?", cryptedTrade)
       .then((results, error, fields) => {
         if (error) {
           res.status(500).send(error);
