@@ -8,7 +8,6 @@ import React, { useState } from "react";
 import "./Login.scss";
 
 const Login = ({ open, onClose, onLogin }) => {
-
   const [password, setPassword] = useState();
 
   const handleLoginButtonClick = () => {
@@ -16,6 +15,9 @@ const Login = ({ open, onClose, onLogin }) => {
   };
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
+    if (typeof window !== "undefined") {
+      const password = localStorage.setItem("password", event.target.value);
+    }
   };
 
   return (

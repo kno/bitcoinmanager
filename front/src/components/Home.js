@@ -76,14 +76,18 @@ const Home = () => {
 
   const getTrades = async () => {
     try {
+      if (!password) {
+        return setShowLogin(true);
+      }
       const res = await axios.get("/api", {
         headers: {
           Authorization: password,
         },
       });
       if (res) {
-        const data = await res.data;
+        const data = res.data;
         mapData(data.rows);
+        setShowLogin(false);
       } else {
         console.log("res", res);
       }
@@ -111,6 +115,17 @@ const Home = () => {
   };
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const password = localStorage.getItem("password");
+      if (password) {
+        setPassword(password);
+        setShowLogin(false);
+      }
+    }
+    getRate();
+  }, []);
+
+  useEffect(() => {
     if (!trades.length) {
       getTrades();
     } else {
@@ -121,10 +136,6 @@ const Home = () => {
   useEffect(() => {
     getTrades();
   }, [password]);
-
-  useEffect(() => {
-    getRate();
-  }, []);
 
   const onLoginHandler = (password) => {
     setPassword(password);
