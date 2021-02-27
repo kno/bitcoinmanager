@@ -11,51 +11,72 @@ const server = express();
 server.use(express.json());
 
 const security = (req, res, next) => {
-  console.log(process.env.SECRET)
-  if (req.headers.authorization != process.env.SECRET) {
-    res.status(401).send();
+  const loginData = JSON.parse(req.headers.authorization);
+  if (loginData.username && loginData.password) {
+    connection
+      .query(
+        "SELECT * FROM users WHERE username = ? AND password = ? LIMIT 1",
+        [loginData.username, loginData.password]
+      )
+      .then((results, error, fields) => {
+        console.log(error, results, fields);
+        if (!results) {
+          res.status(401).send();
+        } else {
+          req.params.userId = results[0].id;
+          next();
+        }
+      });
   } else {
-    next();
+    res.status(401).send();
   }
-}
+};
 
 server
   .disable("x-powered-by")
   .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
 
   .get("/api", security, (req, res) => {
-    connection.query("select * from trade").then(
-      (rows, fields) => {
-        console.log("query executed");
-        console.log(fields, rows);
-        res.json({ rows: rows, fields: fields });
-      },
-      (err) => {
-        console.log(err);
-        res.send(err);
-      }
-    );
+    connection
+      .query("SELECT * FROM trade WHERE userId = ?", [req.params.userId])
+      .then(
+        (rows, fields) => {
+          console.log("query executed");
+          console.log(fields, rows);
+          res.json({ rows: rows, fields: fields });
+        },
+        (err) => {
+          console.log(err);
+          res.send(err);
+        }
+      );
   })
 
   .post("/api", security, (req, res) => {
+    req.body.userId = req.params.userId;
     connection
       .query("INSERT INTO trade SET ?", req.body)
-      .then((error, results, fields) => {
+      .then((results, error, fields) => {
         if (error) {
-          res.send(error);
+          res.status(500).send(error);
+        } else {
+          res.send(results);
         }
-        res.send(results);
       });
   })
 
   .delete("/api/:id", security, (req, res) => {
     connection
-      .query("DELETE FROM trade where id = ?", req.params.id)
-      .then((error, results, fields) => {
+      .query("DELETE FROM trade WHERE id = ? AND userId = ?", [
+        req.params.id,
+        req.params.userId,
+      ])
+      .then((results, error, fields) => {
         if (error) {
-          res.send(error);
+          res.status(500).send(error);
+        } else {
+          res.send(results);
         }
-        res.send(results);
       });
   })
 

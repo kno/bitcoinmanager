@@ -16,7 +16,7 @@ import esLocale from "date-fns/locale/es";
 import React, { useState } from "react";
 import "./Add.scss";
 
-const Add = ({ open, onClose, password }) => {
+const Add = ({ open, onClose, loginData }) => {
   const [newData, setNewData] = useState({
     date: new Date(),
   });
@@ -54,7 +54,7 @@ const Add = ({ open, onClose, password }) => {
         }),
         {
           headers: {
-            Authorization: password,
+            Authorization: JSON.stringify(loginData),
             "Content-Type": "application/json",
           },
         }

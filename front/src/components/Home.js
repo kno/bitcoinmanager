@@ -17,7 +17,7 @@ const Home = () => {
   const [open, setOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [rate, setRate] = useState(0);
-  const [password, setPassword] = useState();
+  const [loginData, setLoginData] = useState({});
 
   const columns = [
     { field: "date", headerName: "Date", width: 130 },
@@ -40,7 +40,7 @@ const Home = () => {
     try {
       const res = await axios.delete("/api/" + id, {
         headers: {
-          Authorization: password,
+          Authorization: JSON.stringify(loginData),
         },
       });
       getTrades();
@@ -76,13 +76,14 @@ const Home = () => {
   };
 
   const getTrades = async () => {
+    if (!loginData.username || !loginData.password) {
+      setShowLogin(true);
+      return;
+    }
     try {
-      if (!password) {
-        return setShowLogin(true);
-      }
       const res = await axios.get("/api", {
         headers: {
-          Authorization: password,
+          Authorization: JSON.stringify(loginData),
         },
       });
       if (res) {
@@ -117,9 +118,9 @@ const Home = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const password = localStorage.getItem("password");
-      if (password) {
-        setPassword(password);
+      const data = localStorage.getItem("loginData");
+      if (data) {
+        setLoginData(JSON.parse(data));
         setShowLogin(false);
       }
     }
@@ -136,23 +137,23 @@ const Home = () => {
 
   useEffect(() => {
     getTrades();
-  }, [password]);
+  }, [loginData]);
 
-  const onLoginHandler = (password) => {
-    setPassword(password);
+  const onLoginHandler = (loginData) => {
+    setLoginData(loginData);
     setShowLogin(false);
   };
 
   const logout = () => {
     localStorage.removeItem("password");
-    setPassword();
+    setLoginData({});
     setTrades([]);
-      };
+  };
 
   return (
     <div className="Home">
       <Login open={showLogin} onClose={getTrades} onLogin={onLoginHandler} />
-      <Add open={open} onClose={onCloseAddHandler} password={password} />
+      <Add open={open} onClose={onCloseAddHandler} loginData={loginData} />
       <div className="Home-header">
         <img src={logo} className="Home-logo" alt="logo" />
         <h2>Welcome to Bitcoin</h2>

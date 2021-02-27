@@ -8,20 +8,29 @@ import React, { useState } from "react";
 import "./Login.scss";
 
 const Login = ({ open, onClose, onLogin }) => {
-  const [password, setPassword] = useState();
+  const [loginData, setLoginData] = useState({});
 
   const handleLoginButtonClick = () => {
-    onLogin(password);
+    localStorage.setItem("loginData", JSON.stringify(loginData));
+    onLogin(loginData);
+  };
+  const handleUsernameChange = (event) => {
+    setLoginData({
+      ...loginData,
+      username: event.target.value,
+    });
   };
   const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-    if (typeof window !== "undefined") {
-      const password = localStorage.setItem("password", event.target.value);
-    }
+    setLoginData({
+      ...loginData,
+      password: event.target.value,
+    });
   };
+
   const handlePasswordKeyPress = (event) => {
     if (event.key === "Enter") {
-      onLogin(password);
+      localStorage.setItem("loginData", JSON.stringify(loginData));
+      onLogin(loginData);
     }
   };
 
@@ -35,10 +44,16 @@ const Login = ({ open, onClose, onLogin }) => {
       </MuiDialogTitle>
       <MuiDialogContent>
         <TextField
-          label="Secret Password"
+          label="Username"
+          onChange={handleUsernameChange}
+          autoFocus
+          fullWidth
+        ></TextField>
+        <TextField
+          label="Password"
           onChange={handlePasswordChange}
           onKeyPress={handlePasswordKeyPress}
-          autoFocus
+          fullWidth
         ></TextField>
       </MuiDialogContent>
       <MuiDialogActions>
