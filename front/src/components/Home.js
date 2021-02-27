@@ -9,6 +9,7 @@ import logo from "../assets/bitcoinlogo.svg";
 import Add from "./Add";
 import "./Home.css";
 import Login from "./Login";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 
 const Home = () => {
   const [trades, setTrades] = useState([]);
@@ -142,6 +143,12 @@ const Home = () => {
     setShowLogin(false);
   };
 
+  const logout = () => {
+    localStorage.removeItem("password");
+    setPassword();
+    setTrades([]);
+      };
+
   return (
     <div className="Home">
       <Login open={showLogin} onClose={getTrades} onLogin={onLoginHandler} />
@@ -154,8 +161,11 @@ const Home = () => {
         <AppBar position="static">
           <Toolbar>
             <AddIcon onClick={() => setOpen(true)} />
-            <div className={"grow"}>Current Rate: {rate}</div>
-            <CachedIcon onClick={getRate} />
+            <div className={"grow"}>
+              Current Rate: {rate} &nbsp;
+              <CachedIcon onClick={getRate} />
+            </div>
+            <ExitToAppIcon onClick={logout} />
           </Toolbar>
         </AppBar>
       </div>

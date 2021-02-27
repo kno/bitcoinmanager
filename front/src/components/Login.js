@@ -19,6 +19,11 @@ const Login = ({ open, onClose, onLogin }) => {
       const password = localStorage.setItem("password", event.target.value);
     }
   };
+  const handlePasswordKeyPress = (event) => {
+    if (event.key === "Enter") {
+      onLogin(password);
+    }
+  };
 
   return (
     <Dialog open={open}>
@@ -32,6 +37,8 @@ const Login = ({ open, onClose, onLogin }) => {
         <TextField
           label="Secret Password"
           onChange={handlePasswordChange}
+          onKeyPress={handlePasswordKeyPress}
+          autoFocus
         ></TextField>
       </MuiDialogContent>
       <MuiDialogActions>
