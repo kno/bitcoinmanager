@@ -1,21 +1,36 @@
+import bcrypt from "bcrypt";
 import Router from "express";
 import connection from "./db.js";
 
-const security = (req, res, next) => {
+const saltRounds = 10;
+
+const security = async (req, res, next) => {
   const loginData = JSON.parse(req.headers.authorization);
   if (loginData.username && loginData.password) {
     connection
       .query(
-        "SELECT * FROM users WHERE username = ? AND password = ? LIMIT 1",
-        [loginData.username, loginData.password]
+        "SELECT * FROM users WHERE username = ? LIMIT 1",
+        loginData.username
       )
-      .then((results, error, fields) => {
-        console.log(error, results, fields);
+      .then(async (results, error, fields) => {
         if (!results || results.length === 0) {
           res.status(401).send();
         } else {
-          req.params.userId = results[0].id;
-          next();
+          try {
+            const passwordOk = await bcrypt.compare(
+              loginData.password,
+              results[0].password
+            );
+            if (passwordOk) {
+              req.params.userId = results[0].id;
+              next();
+            } else {
+              res.status(401).send();
+            }
+          } catch (error) {
+            console.log("Error bcrypt", error);
+            res.status(401).send();
+          }
         }
       });
   } else {
@@ -29,8 +44,6 @@ Api.get("/", security, (req, res) => {
     .query("SELECT * FROM trade WHERE userId = ?", [req.params.userId])
     .then(
       (rows, fields) => {
-        console.log("query executed");
-        console.log(fields, rows);
         res.json({ rows: rows, fields: fields });
       },
       (err) => {
@@ -68,7 +81,9 @@ Api.get("/", security, (req, res) => {
       });
   })
 
-  .post("/users", (req, res) => {
+  .post("/users", async (req, res) => {
+    req.body.password = await bcrypt.hash(req.body.password, saltRounds);
+
     connection
       .query("INSERT INTO users SET ?", req.body)
       .then((results, error, fields) => {
@@ -77,9 +92,7 @@ Api.get("/", security, (req, res) => {
         } else {
           res.send(results);
         }
-      })
-  })
-
-  ;
+      });
+  });
 
 export default Api;
