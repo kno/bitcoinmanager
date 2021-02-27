@@ -8,13 +8,13 @@ import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import {
   KeyboardDatePicker,
-  MuiPickersUtilsProvider,
+  MuiPickersUtilsProvider
 } from "@material-ui/pickers";
 import axios from "axios";
 import { format } from "date-fns";
 import esLocale from "date-fns/locale/es";
 import React, { useState } from "react";
-import "./Add.css";
+import "./Add.scss";
 
 const Add = ({ open, onClose, password }) => {
   const [newData, setNewData] = useState({

@@ -5,6 +5,7 @@ import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import React, { useState } from "react";
+import "./Login.scss";
 
 const Login = ({ open, onClose, onLogin }) => {
 
