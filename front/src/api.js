@@ -1,60 +1,36 @@
 import bcrypt from "bcrypt";
 import Router from "express";
-import connection from "./db.js";
+import passport from "passport";
+import connection from "./db";
+import { security } from "./security";
+var jwt = require("jsonwebtoken");
 
 const saltRounds = 10;
 
-const security = async (req, res, next) => {
-  const loginData = JSON.parse(req.headers.authorization);
-  if (loginData.username && loginData.password) {
-    connection
-      .query(
-        "SELECT * FROM users WHERE username = ? LIMIT 1",
-        loginData.username
-      )
-      .then(async (results, error, fields) => {
-        if (!results || results.length === 0) {
-          res.status(401).send();
-        } else {
-          try {
-            const passwordOk = await bcrypt.compare(
-              loginData.password,
-              results[0].password
-            );
-            if (passwordOk) {
-              req.params.userId = results[0].id;
-              next();
-            } else {
-              res.status(401).send();
-            }
-          } catch (error) {
-            console.log("Error bcrypt", error);
-            res.status(401).send();
-          }
-        }
-      });
-  } else {
-    res.status(401).send();
-  }
-};
-
 const Api = Router();
-Api.get("/", security, (req, res) => {
-  connection
-    .query("SELECT * FROM trade WHERE userId = ?", [req.params.userId])
-    .then(
-      (rows, fields) => {
-        res.json({ rows: rows, fields: fields });
-      },
-      (err) => {
-        console.log(err);
-        res.send(err);
-      }
-    );
+Api.use((req, res, next) => {
+  req.app.use(passport.initialize());
+  req.app.use(passport.session());
+  security(passport);
+  next();
 })
 
-  .post("/", security, (req, res) => {
-    req.body.userId = req.params.userId;
+  .get("/", passport.authenticate("jwt", { session: false }), (req, res) => {
+    connection
+      .query("SELECT * FROM trade WHERE userId = ?", [req.user.id])
+      .then(
+        (rows, fields) => {
+          res.json({ rows: rows, fields: fields });
+        },
+        (err) => {
+          console.log(err);
+          res.send(err);
+        }
+      );
+  })
+
+  .post("/", passport.authenticate("jwt", { session: false }), (req, res) => {
+    req.body.userId = req.user.id;
     connection
       .query("INSERT INTO trade SET ?", req.body)
       .then((results, error, fields) => {
@@ -66,20 +42,24 @@ Api.get("/", security, (req, res) => {
       });
   })
 
-  .delete("/:id", security, (req, res) => {
-    connection
-      .query("DELETE FROM trade WHERE id = ? AND userId = ?", [
-        req.params.id,
-        req.params.userId,
-      ])
-      .then((results, error, fields) => {
-        if (error) {
-          res.status(500).send(error);
-        } else {
-          res.send(results);
-        }
-      });
-  })
+  .delete(
+    "/:id",
+    passport.authenticate("jwt", { session: false }),
+    (req, res) => {
+      connection
+        .query("DELETE FROM trade WHERE id = ? AND userId = ?", [
+          req.params.id,
+          req.user.id,
+        ])
+        .then((results, error, fields) => {
+          if (error) {
+            res.status(500).send(error);
+          } else {
+            res.send(results);
+          }
+        });
+    }
+  )
 
   .post("/users", async (req, res) => {
     req.body.password = await bcrypt.hash(req.body.password, saltRounds);
@@ -91,6 +71,39 @@ Api.get("/", security, (req, res) => {
           res.status(500).send();
         } else {
           res.send(results);
+        }
+      });
+  })
+
+  .post("/login", (req, res) => {
+    connection
+      .query(
+        "SELECT * FROM users WHERE username = ? LIMIT 1",
+        req.body.username
+      )
+      .then(async (results, error, fields) => {
+        if (!results || results.length === 0) {
+          res.status(401).send();
+        } else {
+          try {
+            const passwordOk = await bcrypt.compare(
+              req.body.password,
+              results[0].password
+            );
+            if (passwordOk) {
+              var payload = { id: results[0].id };
+              var opts = { secretOrKey: "lincoin-manager" };
+              var token = jwt.sign(payload, opts.secretOrKey, {
+                expiresIn: "1y",
+              });
+              res.json({ message: "ok", token: token });
+            } else {
+              res.status(401).send();
+            }
+          } catch (error) {
+            console.log("Error bcrypt", error);
+            res.status(401).send();
+          }
         }
       });
   });

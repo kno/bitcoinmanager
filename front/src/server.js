@@ -1,9 +1,9 @@
-import App from "./App";
-import React from "react";
-import { StaticRouter } from "react-router-dom";
 import express from "express";
+import React from "react";
 import { renderToString } from "react-dom/server";
+import { StaticRouter } from "react-router-dom";
 import Api from "./api";
+import App from "./App";
 
 const assets = require(process.env.RAZZLE_ASSETS_MANIFEST);
 
@@ -13,7 +13,7 @@ server.use(express.json());
 server
   .disable("x-powered-by")
   .use(express.static(process.env.RAZZLE_PUBLIC_DIR))
-  .use('/api', Api)
+  .use("/api", Api)
 
   .get("/*", (req, res) => {
     const context = {};

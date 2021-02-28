@@ -8,7 +8,7 @@ import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import {
   KeyboardDatePicker,
-  MuiPickersUtilsProvider
+  MuiPickersUtilsProvider,
 } from "@material-ui/pickers";
 import axios from "axios";
 import { format } from "date-fns";
@@ -17,7 +17,7 @@ import React, { useState } from "react";
 import { cryptTrade } from "../crypt";
 import "./Add.scss";
 
-const Add = ({ open, onClose, loginData }) => {
+const Add = ({ open, onClose, token, password }) => {
   const [newData, setNewData] = useState({
     date: new Date(),
   });
@@ -47,23 +47,22 @@ const Add = ({ open, onClose, loginData }) => {
 
   const handleAddButtonClick = async () => {
     try {
-      const cryptedTrade = cryptTrade({
-        ...newData,
-        date: format(newData.date, "yyyy-MM-dd HH-mm-ss"),
-      }, loginData.password);
-      const res = await axios.post(
-        "/api",
-        JSON.stringify(cryptedTrade),
+      const cryptedTrade = cryptTrade(
         {
-          headers: {
-            Authorization: JSON.stringify(loginData),
-            "Content-Type": "application/json",
-          },
-        }
+          ...newData,
+          date: format(newData.date, "yyyy-MM-dd HH-mm-ss"),
+        },
+        password
       );
+      const res = await axios.post("/api", JSON.stringify(cryptedTrade), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       onClose && onClose();
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

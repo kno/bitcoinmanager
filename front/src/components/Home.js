@@ -18,8 +18,8 @@ const Home = () => {
   const [open, setOpen] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [rate, setRate] = useState(0);
-  const [loginData, setLoginData] = useState({});
-  const [authError, setAuthError] = useState(false);
+  const [token, setToken] = useState();
+  const [password, setPassword] = useState();
 
   const columns = [
     { field: "date", headerName: "Date", width: 130 },
@@ -42,12 +42,12 @@ const Home = () => {
     try {
       const res = await axios.delete("/api/" + id, {
         headers: {
-          Authorization: JSON.stringify(loginData),
+          Authorization: `Bearer ${token}`,
         },
       });
       getTrades();
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -59,7 +59,7 @@ const Home = () => {
       const data = await res.data;
       setRate(data.bids[0][0]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -69,7 +69,7 @@ const Home = () => {
         if (d.decrypted) {
           return d;
         }
-        const decryptedTrade = decryptTrade(d, loginData.password);
+        const decryptedTrade = decryptTrade(d, password);
         const parsedDate = parseISO(decryptedTrade.date);
         return {
           ...decryptedTrade,
@@ -78,21 +78,21 @@ const Home = () => {
             : decryptedTrade.date,
           value: decryptedTrade.btc * rate,
           benefit: decryptedTrade.btc * rate - decryptedTrade.amount,
-          decrypted: true
+          decrypted: true,
         };
       })
     );
   };
 
   const getTrades = async () => {
-    if (!loginData.username || !loginData.password) {
+    if (!token) {
       setShowLogin(true);
       return;
     }
     try {
       const res = await axios.get("/api", {
         headers: {
-          Authorization: JSON.stringify(loginData),
+          Authorization: `Bearer ${token}`,
         },
       });
       if (res) {
@@ -100,15 +100,14 @@ const Home = () => {
         mapData(data.rows);
         setShowLogin(false);
       } else {
-        console.log("res", res);
+        console.error(res);
       }
     } catch (error) {
+      console.error(error);
       if (error.response.status === 401) {
-        setAuthError(true);
+        localStorage.removeItem("token");
         setShowLogin(true);
-        localStorage.removeItem("loginData");
       }
-      console.log(error);
     }
   };
 
@@ -130,9 +129,11 @@ const Home = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const data = localStorage.getItem("loginData");
-      if (data) {
-        setLoginData(JSON.parse(data));
+      const data = localStorage.getItem("token");
+      const pass = localStorage.getItem("password");
+      if (data && pass) {
+        setToken(data);
+        setPassword(pass);
         setShowLogin(false);
       }
     }
@@ -149,29 +150,32 @@ const Home = () => {
 
   useEffect(() => {
     getTrades();
-  }, [loginData]);
+  }, [token]);
 
-  const onLoginHandler = (loginData) => {
-    setLoginData(loginData);
+  const onLoginHandler = (recievedToken, recievedPassword) => {
+    localStorage.setItem("token", recievedToken);
+    localStorage.setItem("password", recievedPassword);
+    setToken(recievedToken);
+    setPassword(recievedPassword);
     setShowLogin(false);
   };
 
   const logout = () => {
-    localStorage.removeItem("loginData");
-    setLoginData({});
+    localStorage.removeItem("token");
+    localStorage.removeItem("password");
+    setToken();
     setTrades([]);
-    setAuthError(false);
   };
 
   return (
     <div className="Home">
-      <Login
-        open={showLogin}
-        error={authError}
-        onClose={getTrades}
-        onLogin={onLoginHandler}
+      <Login open={showLogin} onClose={getTrades} onLogin={onLoginHandler} />
+      <Add
+        open={open}
+        onClose={onCloseAddHandler}
+        token={token}
+        password={password}
       />
-      <Add open={open} onClose={onCloseAddHandler} loginData={loginData} />
       <div className="Home-header">
         <img src={logo} className="Home-logo" alt="logo" />
         <h2>Welcome to Bitcoin</h2>

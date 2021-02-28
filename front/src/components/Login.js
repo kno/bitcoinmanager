@@ -9,33 +9,41 @@ import React, { useState } from "react";
 import { crypt } from "../crypt";
 import "./Login.scss";
 
-const Login = ({ open, onClose, onLogin, error }) => {
+const Login = ({ open, onClose, onLogin }) => {
   const [loginData, setLoginData] = useState({});
+  const [error, setError] = useState(false);
 
-  const handleLoginButtonClick = () => {
-    const loginToSend = {
-      ...loginData,
-      password: crypt(loginData.username, loginData.password)
+  const handleLoginButtonClick = async () => {
+    try {
+      const dataToSend = {
+        username: loginData.username,
+        password: crypt(loginData.username, loginData.password),
+      };
+      const res = await axios.post("/api/login", JSON.stringify(dataToSend), {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      onLogin(res.data.token, loginData.password);
+    } catch (error) {
+      console.error(error);
     }
-    localStorage.setItem("loginData", JSON.stringify(loginToSend));
-    onLogin(loginToSend);
   };
 
   const handleRegisterButtonClick = async () => {
     try {
-      loginData.password = crypt(loginData.username, loginData.password);
-      const res = await axios.post(
-        "/api/users",
-        JSON.stringify(loginData),
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const dataToSend = {
+        username: loginData.username,
+        password: crypt(loginData.username, loginData.password),
+      };
+      const res = await axios.post("/api/users", JSON.stringify(dataToSend), {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       onLogin(loginData);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
