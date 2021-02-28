@@ -14,6 +14,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import esLocale from "date-fns/locale/es";
 import React, { useState } from "react";
+import { cryptTrade } from "../crypt";
 import "./Add.scss";
 
 const Add = ({ open, onClose, loginData }) => {
@@ -46,12 +47,13 @@ const Add = ({ open, onClose, loginData }) => {
 
   const handleAddButtonClick = async () => {
     try {
+      const cryptedTrade = cryptTrade({
+        ...newData,
+        date: format(newData.date, "yyyy-MM-dd HH-mm-ss"),
+      }, loginData.password);
       const res = await axios.post(
         "/api",
-        JSON.stringify({
-          ...newData,
-          date: format(newData.date, "yyyy-MM-dd HH-mm-ss"),
-        }),
+        JSON.stringify(cryptedTrade),
         {
           headers: {
             Authorization: JSON.stringify(loginData),

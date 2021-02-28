@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv } from "crypto";
 
-const crypt = (text, password) => {
+export const crypt = (text, password) => {
   const key = password.repeat(32).substr(0, 32);
   const iv = password.repeat(16).substr(0, 16);
   const cipher = createCipheriv("aes-256-ctr", key, iv);

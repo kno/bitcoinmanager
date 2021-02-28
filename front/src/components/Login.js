@@ -6,23 +6,33 @@ import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
 import axios from "axios";
 import React, { useState } from "react";
+import { crypt } from "../crypt";
 import "./Login.scss";
 
 const Login = ({ open, onClose, onLogin, error }) => {
   const [loginData, setLoginData] = useState({});
 
   const handleLoginButtonClick = () => {
-    localStorage.setItem("loginData", JSON.stringify(loginData));
-    onLogin(loginData);
+    const loginToSend = {
+      ...loginData,
+      password: crypt(loginData.username, loginData.password)
+    }
+    localStorage.setItem("loginData", JSON.stringify(loginToSend));
+    onLogin(loginToSend);
   };
 
   const handleRegisterButtonClick = async () => {
     try {
-      const res = await axios.post("/api/users", JSON.stringify(loginData), {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      loginData.password = crypt(loginData.username, loginData.password);
+      const res = await axios.post(
+        "/api/users",
+        JSON.stringify(loginData),
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       onLogin(loginData);
     } catch (error) {
       console.log(error);
@@ -44,8 +54,7 @@ const Login = ({ open, onClose, onLogin, error }) => {
 
   const handlePasswordKeyPress = (event) => {
     if (event.key === "Enter") {
-      localStorage.setItem("loginData", JSON.stringify(loginData));
-      onLogin(loginData);
+      handleLoginButtonClick();
     }
   };
 
