@@ -6,6 +6,7 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import axios from "axios";
 import { format, isValid, parseISO } from "date-fns";
 import React, { useEffect, useState } from "react";
+import useWebSocket from "react-use-websocket";
 import logo from "../assets/bitcoinlogo.svg";
 import { decryptTrade } from "../crypt";
 import Add from "./Add";
@@ -20,6 +21,21 @@ const Home = () => {
   const [rate, setRate] = useState(0);
   const [token, setToken] = useState();
   const [password, setPassword] = useState();
+  const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
+    "wss://stream.binance.com:9443/ws/btceur@depth",
+    {
+      share: true,
+    }
+  );
+
+  useEffect(() => {
+    if (lastMessage) {
+      const parsedMessage = JSON.parse(lastMessage.data);
+      parsedMessage?.a &&
+        parsedMessage.a[0] &&
+        setRate(parseFloat(parsedMessage.a[0][0]));
+    }
+  }, [lastMessage]);
 
   const columns = [
     { field: "date", headerName: "Date", width: 130 },
@@ -51,34 +67,13 @@ const Home = () => {
     }
   };
 
-  const getRate = async () => {
-    try {
-      const res = await axios.get(
-        "https://api.binance.com/api/v3/depth?symbol=BTCEUR&limit=5"
-      );
-      const data = await res.data;
-      setRate(data.bids[0][0]);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   const mapData = (data) => {
     setTrades(
       data.map((d) => {
-        if (d.decrypted) {
-          return d;
-        }
-        const decryptedTrade = decryptTrade(d, password);
-        const parsedDate = parseISO(decryptedTrade.date);
         return {
-          ...decryptedTrade,
-          date: isValid(parsedDate)
-            ? format(parsedDate, "dd/MM/yyyy")
-            : decryptedTrade.date,
-          value: decryptedTrade.btc * rate,
-          benefit: decryptedTrade.btc * rate - decryptedTrade.amount,
-          decrypted: true,
+          ...d,
+          value: d.btc * rate,
+          benefit: d.btc * rate - d.amount,
         };
       })
     );
@@ -96,19 +91,37 @@ const Home = () => {
         },
       });
       if (res) {
-        const data = res.data;
-        mapData(data.rows);
+        const data = res.data.rows.map((d) => {
+          const decriptedTrade = decryptTrade(d, password);
+          const parsedDate = parseISO(decriptedTrade.date);
+          return {
+            ...decriptedTrade,
+            date: isValid(parsedDate)
+              ? format(parsedDate, "dd/MM/yyyy")
+              : decriptedTrade.date,
+            value: decriptedTrade.btc * rate,
+            benefit: decriptedTrade.btc * rate - decriptedTrade.amount,
+            decrypted: true,
+          };
+        });
+        mapData(data);
         setShowLogin(false);
       } else {
         console.error(res);
       }
     } catch (error) {
       console.error(error);
-      if (error.response.status === 401) {
+      if (error?.response?.status === 401) {
         localStorage.removeItem("token");
+        localStorage.removeItem("password");
         setShowLogin(true);
       }
     }
+  };
+
+  const onCloseAddHandler = () => {
+    setOpen(false);
+    getTrades();
   };
 
   useEffect(() => {
@@ -122,35 +135,28 @@ const Home = () => {
     });
   }, [trades]);
 
-  const onCloseAddHandler = () => {
-    setOpen(false);
-    getTrades();
-  };
-
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const data = localStorage.getItem("token");
-      const pass = localStorage.getItem("password");
-      if (data && pass) {
-        setToken(data);
-        setPassword(pass);
+      const localToken = localStorage.getItem("token");
+      const localPassword = localStorage.getItem("password");
+      if (localToken && localPassword) {
+        setToken(localToken);
+        setPassword(localPassword);
         setShowLogin(false);
+        getTrades();
       }
     }
-    getRate();
   }, []);
-
-  useEffect(() => {
-    if (!trades.length) {
-      getTrades();
-    } else {
-      mapData(trades);
-    }
-  }, [rate]);
 
   useEffect(() => {
     getTrades();
   }, [token]);
+
+  useEffect(() => {
+    if (trades.length > 0) {
+      mapData(trades);
+    }
+  }, [rate]);
 
   const onLoginHandler = (recievedToken, recievedPassword) => {
     localStorage.setItem("token", recievedToken);
@@ -186,7 +192,7 @@ const Home = () => {
             <AddIcon onClick={() => setOpen(true)} />
             <div className={"grow"}>
               Current Rate: {rate} &nbsp;
-              <CachedIcon onClick={getRate} />
+              <CachedIcon onClick={getTrades} />
             </div>
             <ExitToAppIcon onClick={logout} />
           </Toolbar>
