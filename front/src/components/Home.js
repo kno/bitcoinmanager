@@ -1,8 +1,9 @@
 import { AppBar, Toolbar } from "@material-ui/core";
 import { AddIcon, DataGrid } from "@material-ui/data-grid";
-import CachedIcon from "@material-ui/icons/Cached";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+import PauseIcon from "@material-ui/icons/Pause";
+import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import axios from "axios";
 import { format, isValid, parseISO } from "date-fns";
 import React, { useEffect, useState } from "react";
@@ -21,6 +22,7 @@ const Home = () => {
   const [rate, setRate] = useState(0);
   const [token, setToken] = useState();
   const [password, setPassword] = useState();
+  const [paused, setPaused] = useState(false);
   const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
     "wss://stream.binance.com:9443/ws/btceur@depth",
     {
@@ -29,11 +31,13 @@ const Home = () => {
   );
 
   useEffect(() => {
-    if (lastMessage) {
-      const parsedMessage = JSON.parse(lastMessage.data);
-      parsedMessage?.a &&
-        parsedMessage.a[0] &&
-        setRate(parseFloat(parsedMessage.a[0][0]));
+    if (!paused) {
+      if (lastMessage) {
+        const parsedMessage = JSON.parse(lastMessage.data);
+        parsedMessage?.a &&
+          parsedMessage.a[0] &&
+          setRate(parseFloat(parsedMessage.a[0][0]));
+      }
     }
   }, [lastMessage]);
 
@@ -124,6 +128,10 @@ const Home = () => {
     getTrades();
   };
 
+  const playPauseClickHandler = () => {
+    setPaused(!paused);
+  };
+
   useEffect(() => {
     setTotals({
       id: 0,
@@ -192,7 +200,11 @@ const Home = () => {
             <AddIcon onClick={() => setOpen(true)} />
             <div className={"grow"}>
               Current Rate: {rate} &nbsp;
-              <CachedIcon onClick={getTrades} />
+              {paused ? (
+                <PlayArrowIcon onClick={playPauseClickHandler} />
+              ) : (
+                !paused && <PauseIcon onClick={playPauseClickHandler} />
+              )}
             </div>
             <ExitToAppIcon onClick={logout} />
           </Toolbar>
