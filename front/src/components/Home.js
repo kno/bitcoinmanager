@@ -1,4 +1,5 @@
-import { AppBar, Toolbar } from "@material-ui/core";
+import { AppBar, List, ListItem, Toolbar } from "@material-ui/core";
+import Hidden from "@material-ui/core/Hidden";
 import { AddIcon, DataGrid } from "@material-ui/data-grid";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
@@ -192,7 +193,7 @@ const Home = () => {
       />
       <div className="Home-header">
         <img src={logo} className="Home-logo" alt="logo" />
-        <h2>Welcome to Bitcoin</h2>
+        <h2>Welcome to Lincoin Manager</h2>
       </div>
       <div className={"glow"}>
         <AppBar position="static">
@@ -210,7 +211,30 @@ const Home = () => {
           </Toolbar>
         </AppBar>
       </div>
-      <DataGrid autoHeight rows={trades.concat(totals)} columns={columns} />
+      <Hidden smDown>
+        <DataGrid autoHeight rows={trades.concat(totals)} columns={columns} />
+      </Hidden>
+      <Hidden mdUp>
+        <List>
+          {trades.concat(totals).map((trade) => (
+            <ListItem id={trade.id}>
+              Date: {trade.date}
+              <br />
+              Amount: {trade.amount}
+              <br />
+              Buy Rate: {trade.rate}
+              <br />
+              BTC: {trade.btc}
+              <br />
+              Current Value: {trade.value}
+              <br />
+              Benefit: {trade.benefit}
+              <br />
+              <DeleteIcon onClick={() => deleteRow(trade.id)} />
+            </ListItem>
+          ))}
+        </List>
+      </Hidden>
       <ul className="Home-resources"></ul>
     </div>
   );
