@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import Router from "express";
 import passport from "passport";
+import yahooFinance from "yahoo-finance";
 import connection from "./db";
 import { security } from "./security";
 var jwt = require("jsonwebtoken");
@@ -106,6 +107,23 @@ Api.use((req, res, next) => {
           }
         }
       });
+  })
+
+  .get("/exchange/:key", async (req, res) => {
+    yahooFinance.historical(
+      {
+        symbol: req.params.key,
+        from: "01/01/2021",
+        to: new Date(),
+      },
+      (err, quotes) => {
+        if (err) {
+          res.status(500).send();
+        } else {
+          res.send(quotes);
+        }
+      }
+    );
   });
 
 export default Api;

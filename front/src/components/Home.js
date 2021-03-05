@@ -12,6 +12,7 @@ import useWebSocket from "react-use-websocket";
 import logo from "../assets/bitcoinlogo.svg";
 import { decryptTrade } from "../crypt";
 import Add from "./Add";
+import Graph from "./graph";
 import "./Home.css";
 import Login from "./Login";
 
@@ -24,7 +25,7 @@ const Home = () => {
   const [token, setToken] = useState();
   const [password, setPassword] = useState();
   const [paused, setPaused] = useState(false);
-  const { sendMessage, lastMessage, readyState, getWebSocket } = useWebSocket(
+  const { lastMessage } = useWebSocket(
     "wss://stream.binance.com:9443/ws/btceur@depth",
     {
       share: true,
@@ -212,29 +213,34 @@ const Home = () => {
         </AppBar>
       </div>
       <Hidden smDown>
-        <DataGrid autoHeight rows={trades.concat(totals)} columns={columns} />
+        {trades && trades.length && (
+          <DataGrid autoHeight rows={trades.concat(totals)} columns={columns} />
+        )}
       </Hidden>
       <Hidden mdUp>
-        <List>
-          {trades.concat(totals).map((trade) => (
-            <ListItem id={trade.id}>
-              Date: {trade.date}
-              <br />
-              Amount: {trade.amount}
-              <br />
-              Buy Rate: {trade.rate}
-              <br />
-              BTC: {trade.btc}
-              <br />
-              Current Value: {trade.value}
-              <br />
-              Benefit: {trade.benefit}
-              <br />
-              <DeleteIcon onClick={() => deleteRow(trade.id)} />
-            </ListItem>
-          ))}
-        </List>
+        {trades && trades.length && (
+          <List>
+            {trades.concat(totals).map((trade) => (
+              <ListItem key={trade.id}>
+                Date: {trade.date}
+                <br />
+                Amount: {trade.amount}
+                <br />
+                Buy Rate: {trade.rate}
+                <br />
+                BTC: {trade.btc}
+                <br />
+                Current Value: {trade.value}
+                <br />
+                Benefit: {trade.benefit}
+                <br />
+                <DeleteIcon onClick={() => deleteRow(trade.id)} />
+              </ListItem>
+            ))}
+          </List>
+        )}
       </Hidden>
+      <Graph />
       <ul className="Home-resources"></ul>
     </div>
   );

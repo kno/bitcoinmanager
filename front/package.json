@@ -28,7 +28,9 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-router-dom": "^5.2.0",
-    "react-use-websocket": "^2.5.0"
+    "react-use-websocket": "^2.5.0",
+    "recharts": "^2.0.8",
+    "yahoo-finance": "^0.3.7"
   },
   "devDependencies": {
     "razzle": "^3.3.13",
