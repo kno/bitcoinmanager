@@ -1,4 +1,13 @@
-import { AppBar, Button, List, ListItem, Toolbar } from "@material-ui/core";
+import {
+  AppBar,
+  Button,
+  Divider,
+  Grid,
+  List,
+  ListItem,
+  ListItemSecondaryAction,
+  Toolbar,
+} from "@material-ui/core";
 import Hidden from "@material-ui/core/Hidden";
 import { AddIcon, DataGrid } from "@material-ui/data-grid";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -227,27 +236,55 @@ const Home = () => {
         {trades && trades.length && (
           <List>
             {trades.concat(totals).map((trade) => (
-              <ListItem key={trade.id}>
-                Date: {trade.date}
-                <br />
-                Amount: {trade.amount}
-                <br />
-                Buy Rate: {trade.rate}
-                <br />
-                BTC: {trade.btc}
-                <br />
-                Current Value: {trade.value}
-                <br />
-                Benefit: {trade.benefit}
-                <br />
-                <DeleteIcon onClick={() => deleteRow(trade.id)} />
-              </ListItem>
+              <>
+                <ListItem key={trade.id}>
+                  <Grid container spacing={3}>
+                    <Grid item sm={6}>
+                      <List>
+                        <ListItem>
+                          {trade.date === "Total:" ? (
+                            <strong>Total</strong>
+                          ) : (
+                            <>
+                              <strong>Date:</strong> {trade.date}
+                            </>
+                          )}
+                        </ListItem>
+                        <ListItem>
+                          <strong>Amount:</strong> {trade.amount}€
+                        </ListItem>
+                      </List>
+                    </Grid>
+                    <Grid item sm={6}>
+                      <List>
+                        <ListItem>
+                          <strong>Value:</strong> {trade.value.toFixed(2)}€
+                        </ListItem>
+                        <ListItem>
+                          <strong>Benefit:</strong> {trade.benefit.toFixed(2)}€
+                        </ListItem>
+                      </List>
+                    </Grid>
+                  </Grid>
+                  <ListItemSecondaryAction>
+                    <DeleteIcon onClick={() => deleteRow(trade.id)} />
+                  </ListItemSecondaryAction>
+                </ListItem>
+                <Divider />
+              </>
             ))}
           </List>
         )}
       </Hidden>
       <div className={"left"}>
-        <Button fullWidth={false} variant="contained" color="primary" onClick={showHideGraph}>Show/Hide Graph</Button>
+        <Button
+          fullWidth={false}
+          variant="contained"
+          color="primary"
+          onClick={showHideGraph}
+        >
+          Show/Hide Graph
+        </Button>
       </div>
       {showGraph && <Graph />}
       <ul className="Home-resources"></ul>
