@@ -1,9 +1,12 @@
 import bcrypt from "bcrypt";
+import csv from "csv-parser";
 import Router from "express";
+import fs from "fs";
 import passport from "passport";
 import yahooFinance from "yahoo-finance";
 import connection from "./db";
 import { security } from "./security";
+
 var jwt = require("jsonwebtoken");
 
 const saltRounds = 10;
@@ -110,20 +113,44 @@ Api.use((req, res, next) => {
   })
 
   .get("/exchange/:key", async (req, res) => {
-    yahooFinance.historical(
-      {
+    try {
+      const from = "2021/02/01";
+      const to = new Date();
+      connection
+        .query(
+          "SELECT * FROM history WHERE date BETWEEN ? AND ? ORDER BY date",
+          [from, to]
+        )
+        .then((results, error, fields) => {
+          res.send(results);
+        });
+      /*const quotes = await yahooFinance.historical({
         symbol: req.params.key,
         from: "01/01/2021",
         to: new Date(),
-      },
-      (err, quotes) => {
-        if (err) {
-          res.status(500).send();
-        } else {
-          res.send(quotes);
-        }
-      }
-    );
+        period: "d",
+      });
+      res.send(quotes);
+      */
+    } catch (err) {
+      console.log(err);
+      res.status(500).send();
+    }
+  })
+
+  .get("/import", async (req, res) => {
+    try {
+      fs.createReadStream("data.csv")
+        .pipe(csv({ separator: "," }))
+        .on("data", (data) =>
+          connection.query("INSERT INTO history SET ?", data)
+        )
+        .on("end", () => {
+          res.send("ok");
+        });
+    } catch (error) {
+      console.error("Error importing: ", error);
+    }
   });
 
 export default Api;

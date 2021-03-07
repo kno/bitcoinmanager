@@ -1,4 +1,4 @@
-import { AppBar, List, ListItem, Toolbar } from "@material-ui/core";
+import { AppBar, Button, List, ListItem, Toolbar } from "@material-ui/core";
 import Hidden from "@material-ui/core/Hidden";
 import { AddIcon, DataGrid } from "@material-ui/data-grid";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -25,6 +25,8 @@ const Home = () => {
   const [token, setToken] = useState();
   const [password, setPassword] = useState();
   const [paused, setPaused] = useState(false);
+  const [showGraph, setShowGrap] = useState(false);
+
   const { lastMessage } = useWebSocket(
     "wss://stream.binance.com:9443/ws/btceur@depth",
     {
@@ -183,6 +185,10 @@ const Home = () => {
     setTrades([]);
   };
 
+  const showHideGraph = () => {
+    setShowGrap(!showGraph);
+  };
+
   return (
     <div className="Home">
       <Login open={showLogin} onClose={getTrades} onLogin={onLoginHandler} />
@@ -240,7 +246,10 @@ const Home = () => {
           </List>
         )}
       </Hidden>
-      <Graph />
+      <div className={"left"}>
+        <Button fullWidth={false} variant="contained" color="primary" onClick={showHideGraph}>Show/Hide Graph</Button>
+      </div>
+      {showGraph && <Graph />}
       <ul className="Home-resources"></ul>
     </div>
   );
