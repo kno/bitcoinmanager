@@ -74,7 +74,19 @@ Api.use((req, res, next) => {
         if (error) {
           res.status(500).send();
         } else {
-          res.send(results);
+          connection
+            .query(
+              "SELECT * FROM users WHERE username = ? LIMIT 1",
+              req.body.username
+            )
+            .then((results, error, fields) => {
+              var payload = { id: results[0].id };
+              var opts = { secretOrKey: "lincoin-manager" };
+              var token = jwt.sign(payload, opts.secretOrKey, {
+                expiresIn: "1y",
+              });
+              res.json({ message: "ok", token: token });
+            });
         }
       });
   })
@@ -124,14 +136,6 @@ Api.use((req, res, next) => {
         .then((results, error, fields) => {
           res.send(results);
         });
-      /*const quotes = await yahooFinance.historical({
-        symbol: req.params.key,
-        from: "01/01/2021",
-        to: new Date(),
-        period: "d",
-      });
-      res.send(quotes);
-      */
     } catch (err) {
       console.log(err);
       res.status(500).send();

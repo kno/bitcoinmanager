@@ -6,10 +6,7 @@ import MuiDialogContent from "@material-ui/core/DialogContent";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import IconButton from "@material-ui/core/IconButton";
 import CloseIcon from "@material-ui/icons/Close";
-import {
-  KeyboardDatePicker,
-  MuiPickersUtilsProvider,
-} from "@material-ui/pickers";
+import { DatePicker, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import axios from "axios";
 import { format } from "date-fns";
 import esLocale from "date-fns/locale/es";
@@ -76,18 +73,13 @@ const Add = ({ open, onClose, token, password }) => {
       </MuiDialogTitle>
       <MuiDialogContent>
         <MuiPickersUtilsProvider utils={DateFnsUtils} locale={esLocale}>
-          <KeyboardDatePicker
+          <DatePicker
             disableToolbar
-            variant="inline"
+            variant="static"
             format="dd/MM/yyyy"
-            margin="normal"
-            id="date-picker-inline"
-            label="Date picker inline"
+            orientation="landscape"
             value={newData.date}
             onChange={handleDateChange}
-            KeyboardButtonProps={{
-              "aria-label": "change date",
-            }}
           />
         </MuiPickersUtilsProvider>
         <TextField

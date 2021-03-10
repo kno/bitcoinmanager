@@ -34,6 +34,7 @@
     "yahoo-finance": "^0.3.7"
   },
   "devDependencies": {
+    "eslint-plugin-react-hooks": "^4.2.0",
     "razzle": "^3.3.13",
     "razzle-plugin-scss": "^3.3.13"
   }

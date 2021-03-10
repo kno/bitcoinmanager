@@ -2,14 +2,11 @@ import { Button, Dialog, TextField } from "@material-ui/core";
 import MuiDialogActions from "@material-ui/core/DialogActions";
 import MuiDialogContent from "@material-ui/core/DialogContent";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
-import IconButton from "@material-ui/core/IconButton";
-import CloseIcon from "@material-ui/icons/Close";
 import axios from "axios";
 import React, { useState } from "react";
 import { crypt } from "../crypt";
-import "./Login.scss";
 
-const Login = ({ open, onClose, onLogin }) => {
+const Login = ({ open, onLogin }) => {
   const [loginData, setLoginData] = useState({});
   const [error, setError] = useState(false);
 
@@ -41,7 +38,7 @@ const Login = ({ open, onClose, onLogin }) => {
           "Content-Type": "application/json",
         },
       });
-      onLogin(loginData);
+      onLogin(res.data.token, dataToSend.password);
     } catch (error) {
       console.error(error);
     }
@@ -68,12 +65,7 @@ const Login = ({ open, onClose, onLogin }) => {
 
   return (
     <Dialog open={open}>
-      <MuiDialogTitle>
-        Login
-        <IconButton aria-label="close" onClick={onClose} className={"close"}>
-          <CloseIcon />
-        </IconButton>
-      </MuiDialogTitle>
+      <MuiDialogTitle>Login</MuiDialogTitle>
       <MuiDialogContent>
         <TextField
           error={error}
