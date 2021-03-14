@@ -5,15 +5,15 @@ import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import PauseIcon from "@material-ui/icons/Pause";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
 import React, { useContext, useEffect, useState } from "react";
-import useWebSocket from "react-use-websocket";
 import logo from "../assets/bitcoinlogo.svg";
 import { getTrades, mapTrades } from "../services/trades";
 import { Context } from "../store";
-import { FETCH_TRADES, SET_USER_DATA, UPDATE_RATE } from "../store/actions";
+import { FETCH_TRADES, SET_USER_DATA } from "../store/actions";
 import Add from "./Add";
 import DesktopList from "./DesktopList";
 import Graph from "./graph";
 import "./Home.css";
+import LiveRateUpdater from "./LiveRateUpdater";
 import Login from "./Login";
 import MobileList from "./MobileList";
 
@@ -24,29 +24,7 @@ const Home = () => {
   const [totals, setTotals] = useState([]);
   const [isOpenAddDialog, setOpenAddDialog] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
-  const [paused, setPaused] = useState(false);
   const [showGraph, setShowGrap] = useState(false);
-
-  const { lastMessage } = useWebSocket(
-    "wss://stream.binance.com:9443/ws/btceur@depth",
-    {
-      share: true,
-    }
-  );
-
-  useEffect(() => {
-    if (!paused) {
-      if (lastMessage) {
-        const parsedMessage = JSON.parse(lastMessage.data);
-        parsedMessage?.a &&
-          parsedMessage.a[0] &&
-          dispatch({
-            type: UPDATE_RATE,
-            payload: parseFloat(parsedMessage.a[0][0]),
-          });
-      }
-    }
-  }, [lastMessage]);
 
   useEffect(() => {
     getTrades({ token, password, rate, dispatch });
@@ -83,10 +61,6 @@ const Home = () => {
   const onCloseAddHandler = () => {
     setOpenAddDialog(false);
     getTrades({ token, password, rate, dispatch });
-  };
-
-  const playPauseClickHandler = () => {
-    setPaused(!paused);
   };
 
   useEffect(() => {
@@ -155,12 +129,8 @@ const Home = () => {
           <Toolbar>
             <AddIcon onClick={() => setOpenAddDialog(true)} />
             <div className={"grow"}>
-              Current Rate: {rate} &nbsp;
-              {paused ? (
-                <PlayArrowIcon onClick={playPauseClickHandler} />
-              ) : (
-                !paused && <PauseIcon onClick={playPauseClickHandler} />
-              )}
+              Current Rate:{" "}
+              <LiveRateUpdater exchangeKey="btceur" />
             </div>
             <ExitToAppIcon onClick={logout} />
           </Toolbar>
