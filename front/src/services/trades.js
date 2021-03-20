@@ -1,5 +1,5 @@
 import axios from "axios";
-import { format, isValid, parseISO } from "date-fns";
+import { compareAsc, format, isValid, parse, parseISO } from "date-fns";
 import { decryptTrade } from "../crypt";
 import { FETCH_TRADES } from "../store/actions";
 
@@ -15,7 +15,7 @@ export const getTrades = async ({ token, password, rate, dispatch }) => {
   });
 };
 
-export const deleteRow = async ({id, token, password, rates, dispatch}) => {
+export const deleteRow = async ({ id, token, password, rates, dispatch }) => {
   try {
     const res = await axios.delete("/api/" + id, {
       headers: {
@@ -27,6 +27,8 @@ export const deleteRow = async ({id, token, password, rates, dispatch}) => {
     console.error(err);
   }
 };
+const parseDate = (d) => parse(d.date, "dd/MM/yyyy", new Date());
+const compareDates = (a, b) => compareAsc(parseDate(a), parseDate(b));
 
 const fetchTrades = async ({ token, password, rates }) => {
   if (!token) {
@@ -52,7 +54,7 @@ const fetchTrades = async ({ token, password, rates }) => {
           decrypted: true,
         };
       });
-      return trades;
+      return trades.sort(compareDates);
     } else {
       console.error(res);
       return { error: true };
