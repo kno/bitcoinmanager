@@ -15,20 +15,20 @@ export const getTrades = async ({ token, password, rate, dispatch }) => {
   });
 };
 
-export const deleteRow = async ({id, token, password, rate, dispatch}) => {
+export const deleteRow = async ({id, token, password, rates, dispatch}) => {
   try {
     const res = await axios.delete("/api/" + id, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    getTrades({ token, password, rate, dispatch });
+    getTrades({ token, password, rate: rates, dispatch });
   } catch (err) {
     console.error(err);
   }
 };
 
-const fetchTrades = async ({ token, password, rate }) => {
+const fetchTrades = async ({ token, password, rates }) => {
   if (!token) {
     return;
   }
@@ -47,8 +47,8 @@ const fetchTrades = async ({ token, password, rate }) => {
           date: isValid(parsedDate)
             ? format(parsedDate, "dd/MM/yyyy")
             : decriptedTrade.date,
-          value: decriptedTrade.btc * rate,
-          benefit: decriptedTrade.btc * rate - decriptedTrade.amount,
+          value: decriptedTrade.btc * rates,
+          benefit: decriptedTrade.btc * rates - decriptedTrade.amount,
           decrypted: true,
         };
       });

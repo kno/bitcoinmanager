@@ -7,7 +7,7 @@ import { UPDATE_RATE } from "../store/actions";
 
 const LiveRateUpdater = ({ exchangeKey }) => {
   const { state, dispatch } = useContext(Context);
-  const { rate } = state || {};
+  const { rates } = state || {};
 
   const [paused, setPaused] = useState(false);
 
@@ -25,7 +25,10 @@ const LiveRateUpdater = ({ exchangeKey }) => {
         parsedMessage.a[0] &&
         dispatch({
           type: UPDATE_RATE,
-          payload: parseFloat(parsedMessage.a[0][0]),
+          payload: {
+            exchangeKey: exchangeKey,
+            rate: parseFloat(parsedMessage.a[0][0])
+          },
         });
     }
     return () => {
@@ -39,7 +42,7 @@ const LiveRateUpdater = ({ exchangeKey }) => {
 
   return (
     <>
-      {rate}
+      {rates[exchangeKey]}
       &nbsp;
       {paused ? (
         <PlayArrowIcon onClick={playPauseClickHandler} />

@@ -25,6 +25,7 @@ export const cryptTrade = (trade, password) => {
     amount: crypt(trade.amount, password),
     rate: crypt(trade.rate, password),
     btc: crypt(trade.btc, password),
+    coin: crypt(trade.coin, password),
   };
 };
 
@@ -35,5 +36,6 @@ export const decryptTrade = (trade, password) => {
     amount: parseFloat(decrypt(trade.amount, password)),
     rate: parseFloat(decrypt(trade.rate, password)),
     btc: parseFloat(decrypt(trade.btc, password)),
+    coin: decrypt(trade.coin, password),
   };
 };

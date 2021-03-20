@@ -19,7 +19,7 @@ import MobileList from "./MobileList";
 
 const Home = () => {
   const { state, dispatch } = useContext(Context);
-  const { trades = [], rate, token, password } = state || {};
+  const { trades = [], rates, token, password } = state || {};
 
   const [totals, setTotals] = useState([]);
   const [isOpenAddDialog, setOpenAddDialog] = useState(false);
@@ -27,18 +27,18 @@ const Home = () => {
   const [showGraph, setShowGrap] = useState(false);
 
   useEffect(() => {
-    getTrades({ token, password, rate, dispatch });
+    getTrades({ token, password, rates, dispatch });
   }, [token, password]);
 
   useEffect(() => {
     if (trades && trades.length > 0) {
-      const mappedTrades = mapTrades({ trades: trades, rate: rate });
+      const mappedTrades = mapTrades({ trades: trades, rate: rates['btceur'] });
       dispatch({
         type: FETCH_TRADES,
         payload: mappedTrades,
       });
     }
-  }, [rate]);
+  }, [rates]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -60,7 +60,7 @@ const Home = () => {
 
   const onCloseAddHandler = () => {
     setOpenAddDialog(false);
-    getTrades({ token, password, rate, dispatch });
+    getTrades({ token, password, rates, dispatch });
   };
 
   useEffect(() => {
@@ -86,7 +86,7 @@ const Home = () => {
         },
       });
       setShowLogin(false);
-      getTrades({ token, password, rate, dispatch });
+      getTrades({ token, password, rates, dispatch });
     }
   };
 

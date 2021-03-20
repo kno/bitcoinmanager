@@ -8,6 +8,7 @@ const initialState = {
   token: "",
   password: "",
   rate: 1,
+  rates: {}
 };
 
 const Store = ({ children }) => {

@@ -48,6 +48,7 @@ const Add = ({ open, onClose, token, password }) => {
         {
           ...newData,
           date: format(newData.date, "yyyy-MM-dd HH-mm-ss"),
+          coin: 'btceur',
         },
         password
       );

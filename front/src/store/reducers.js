@@ -10,7 +10,10 @@ const reducer = (state, action) => {
     case UPDATE_RATE:
       return {
         ...state,
-        rate: action.payload || 1,
+        rates: {
+          ...state.rates,
+          [action.payload.exchangeKey]: action.payload.rate
+        },
       };
     case SET_USER_DATA:
       return {

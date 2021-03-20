@@ -12,6 +12,7 @@ const DesktopList = ({ trades }) => {
     { field: "date", headerName: "Date", width: 130 },
     { field: "amount", headerName: "Amount", width: 130 },
     { field: "rate", headerName: "Buy Rate", width: 130 },
+    { field: "coin", headerName: "Coin", width: 130 },
     { field: "btc", headerName: "BTC", width: 150 },
     { field: "value", headerName: "Current Value", width: 150 },
     { field: "benefit", headerName: "Benefit", width: 150 },
@@ -20,7 +21,15 @@ const DesktopList = ({ trades }) => {
       headerName: "Actions",
       width: 150,
       renderCell: (a) => {
-        return a.row.id && <DeleteIcon onClick={() => deleteRow({id: a.row.id, token, password, rate, dispatch})} />;
+        return (
+          a.row.id && (
+            <DeleteIcon
+              onClick={() =>
+                deleteRow({ id: a.row.id, token, password, rate, dispatch })
+              }
+            />
+          )
+        );
       },
     },
   ];
