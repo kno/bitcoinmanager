@@ -4,7 +4,7 @@ import MuiDialogContent from "@material-ui/core/DialogContent";
 import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import axios from "axios";
 import React, { useState } from "react";
-import { crypt } from "../services/crypt";
+import { crypt } from "../../services/crypt";
 
 const Login = ({ open, onLogin }) => {
   const [loginData, setLoginData] = useState({});

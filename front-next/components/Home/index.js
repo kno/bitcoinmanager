@@ -1,21 +1,18 @@
 import { AppBar, Button, Toolbar } from "@material-ui/core";
 import Hidden from "@material-ui/core/Hidden";
-import { AddIcon } from "@material-ui/data-grid";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import React, { useEffect, useState } from "react";
-import logo from "../assets/bitcoinlogo.svg";
-import { getTrades, mapTrades } from "../services/trades";
-import { Context } from "../store";
-import { FETCH_TRADES, SET_USER_DATA } from "../store/actions";
-import Add from "./Add";
-import DesktopList from "./DesktopList";
+import logo from "../../assets/bitcoinlogo.svg";
+import { getTrades, mapTrades } from "../../services/trades";
+import { FETCH_TRADES, SET_USER_DATA } from "../../store/actions";
+import Add from "../Add";
+import DesktopList from "../DesktopList";
 // import Graph from "./graph";
-import "./Home.module.scss";
-import LiveRateUpdater from "./LiveRateUpdater";
-import Login from "./Login";
-import MobileList from "./MobileList";
-import {useAppContext} from "../store";
 import Image from "next/image";
+import LiveRateUpdater from "../LiveRateUpdater";
+import Login from "../Login";
+import MobileList from "../MobileList";
+import "./Home.module.scss";
 
 const Home = () => {
   // const { state, dispatch } = useAppContext();

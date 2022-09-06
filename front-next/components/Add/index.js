@@ -11,7 +11,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import esLocale from "date-fns/locale/es";
 import React, { useState } from "react";
-import { cryptTrade } from "../services/crypt";
+import { cryptTrade } from "../../services/crypt";
 
 import styles from "./Add.module.scss";
 

@@ -1,9 +1,9 @@
 import PauseIcon from "@material-ui/icons/Pause";
 import PlayArrowIcon from "@material-ui/icons/PlayArrow";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useWebSocket from "react-use-websocket";
-import useAppContext, { Context } from "../store";
-import { UPDATE_RATE } from "../store/actions";
+import { UPDATE_RATE } from "../../store/actions";
+import useAppContext from "../../store";
 
 const LiveRateUpdater = ({ exchangeKey }) => {
   const { state, dispatch } = useAppContext()
