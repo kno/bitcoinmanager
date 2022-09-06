@@ -1,0 +1,8 @@
+export const FETCH_TRADES = "FETCH_TRADES";
+export const FETCH_TRADES_SUCCESS = "FETCH_TRADES_SUCCESS";
+export const FETCH_TRADES_ERROR = "FETCH_TRADES_ERROR";
+
+export const USERS_LOGOUT = "USERS_LOGOUT";
+export const SET_USER_DATA = "SET_USER_DATA";
+
+export const UPDATE_RATE = "UPDATE_RATE";

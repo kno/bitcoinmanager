@@ -11,8 +11,9 @@ import axios from "axios";
 import { format } from "date-fns";
 import esLocale from "date-fns/locale/es";
 import React, { useState } from "react";
-import { cryptTrade } from "../crypt";
-// import "./Add.scss";
+import { cryptTrade } from "../services/crypt";
+
+import styles from "./Add.module.scss";
 
 const Add = ({ open, onClose, token, password }) => {
   const [newData, setNewData] = useState({
@@ -68,7 +69,7 @@ const Add = ({ open, onClose, token, password }) => {
     <Dialog open={open}>
       <MuiDialogTitle>
         Add New entry
-        <IconButton aria-label="close" onClick={onClose} className={"close"}>
+        <IconButton aria-label="close" onClick={onClose} className={styles.close}>
           <CloseIcon />
         </IconButton>
       </MuiDialogTitle>

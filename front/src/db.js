@@ -6,18 +6,19 @@ connection.on("error", function (err) {
   connection.connect();
 });
 
-const mysqlConnection = {};
-mysqlConnection.query = (q, data) => {
-  const p = new Promise((resolve, reject) => {
-    connection.query(q, data, (err, rows, fields) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(rows, fields);
-      }
+const mysqlConnection = {
+  query: (q, data) => {
+    const p = new Promise((resolve, reject) => {
+      connection.query(q, data, (err, rows, fields) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows, fields);
+        }
+      });
     });
-  });
-  return p;
+    return p;
+  },
 };
 
 export default mysqlConnection;

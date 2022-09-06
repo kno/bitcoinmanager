@@ -1,0 +1,53 @@
+.Home {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.Home-logo {
+  animation: Home-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.Home-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.Home-intro {
+  font-size: large;
+}
+
+.Home-resources {
+  list-style: none;
+}
+
+.Home-resources > li {
+  display: inline-block;
+  padding: 1rem;
+}
+
+.grow {
+  flex-grow: 1;
+}
+
+.close {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+}
+
+.left {
+  text-align: left;
+}
+
+@keyframes Home-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

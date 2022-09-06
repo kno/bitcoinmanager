@@ -1,0 +1,34 @@
+{
+  "name": "front-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@date-io/date-fns": "^2.15.0",
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/data-grid": "^4.0.0-alpha.37",
+    "@material-ui/icons": "^4.11.3",
+    "@material-ui/pickers": "^3.3.10",
+    "axios": "^0.27.2",
+    "bcrypt": "^5.0.1",
+    "crypto": "^1.0.1",
+    "csv-parser": "^3.0.0",
+    "date-fns": "^2.29.2",
+    "jsonwebtoken": "^8.5.1",
+    "next": "12.2.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-number-format": "^4.9.4",
+    "react-use-websocket": "^4.2.0"
+  },
+  "devDependencies": {
+    "eslint": "8.23.0",
+    "eslint-config-next": "12.2.5",
+    "sass": "^1.54.8"
+  }
+}
