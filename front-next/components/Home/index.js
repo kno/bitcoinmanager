@@ -38,7 +38,7 @@ const Home = () => {
     }
   }, [rates]);
 
- /*  useEffect(() => {
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const localToken = localStorage.getItem("token");
       const localPassword = localStorage.getItem("password");
@@ -54,7 +54,7 @@ const Home = () => {
         setShowLogin(true);
       }
     }
-  }, []); */
+  }, []);
 
   const onCloseAddHandler = () => {
     setOpenAddDialog(false);
