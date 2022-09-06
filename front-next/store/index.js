@@ -19,8 +19,7 @@ export const AppContextProvider = ({ children }) => {
       state,      // States que seran visibles en el contexto.
       dispatch,   // Funciones que son exportadas para manejo externo.
     }),
-    [
-      state]);   // States que serán visibles en el contexto.
+    [state]);   // States que serán visibles en el contexto.
 
   // Interface donde será expuesto como proveedor y envolverá la App.
   return <AppContext.Provider value={values}>{children}</AppContext.Provider>;

@@ -5,10 +5,13 @@ import MuiDialogTitle from "@material-ui/core/DialogTitle";
 import axios from "axios";
 import React, { useState } from "react";
 import { crypt } from "../../services/crypt";
+import useAppContext from "../../store";
 
 const Login = ({ open, onLogin }) => {
   const [loginData, setLoginData] = useState({});
   const [error, setError] = useState(false);
+  const { state, dispatch } = useAppContext();
+
 
   const handleLoginButtonClick = async () => {
     try {
@@ -22,6 +25,15 @@ const Login = ({ open, onLogin }) => {
         },
       });
       onLogin(res.data.token, loginData.password);
+      localStorage.setItem("token", recievedToken);
+      localStorage.setItem("password", recievedPassword);
+      dispatch({
+        type: SET_USER_DATA,
+        payload: {
+          password: recievedPassword,
+          token: recievedToken,
+        },
+      });
     } catch (error) {
       console.error(error);
     }

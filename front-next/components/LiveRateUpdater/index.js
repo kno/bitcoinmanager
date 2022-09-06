@@ -11,12 +11,12 @@ const LiveRateUpdater = ({ exchangeKey }) => {
 
   const [paused, setPaused] = useState(false);
 
-  const { lastMessage } = useWebSocket(
+  const { lastMessage } = ""/* useWebSocket(
     `wss://stream.binance.com:9443/ws/${exchangeKey}@depth`,
     {
       share: true,
     }
-  );
+  ); */
 
   useEffect(() => {
     if (lastMessage && !paused) {

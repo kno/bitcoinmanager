@@ -9,10 +9,12 @@ export const getTrades = async ({ token, password, rate, dispatch }) => {
     password: password,
     rate: rate,
   });
-  dispatch({
-    type: FETCH_TRADES,
-    payload: fetchedTrades,
-  });
+  if (fetchedTrades) {
+    dispatch({
+      type: FETCH_TRADES,
+      payload: fetchedTrades,
+    });
+  }
 };
 
 export const deleteRow = async ({ id, token, password, rates, dispatch }) => {

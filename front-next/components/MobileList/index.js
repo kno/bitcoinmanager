@@ -7,8 +7,8 @@ import {
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
 import React, { useContext } from "react";
-import { deleteRow } from "../services/trades";
-import { Context } from "../store";
+import { deleteRow } from "../../services/trades";
+import { Context } from "../../store";
 
 const MobileListItem = ({ trade }) => {
   const { state, dispatch } = useContext(Context);

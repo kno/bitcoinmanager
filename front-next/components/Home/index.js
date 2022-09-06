@@ -9,15 +9,14 @@ import Add from "../Add";
 import DesktopList from "../DesktopList";
 // import Graph from "./graph";
 import Image from "next/image";
+import useAppContext from "../../store";
 import LiveRateUpdater from "../LiveRateUpdater";
 import Login from "../Login";
 import MobileList from "../MobileList";
 import "./Home.module.scss";
 
 const Home = () => {
-  // const { state, dispatch } = useAppContext();
-  const state = {};
-  const dispatch = () => {};
+  const { state, dispatch } = useAppContext();
   const { trades = [], rates, token, password } = state || {};
 
   const [totals, setTotals] = useState([]);
@@ -25,7 +24,7 @@ const Home = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showGraph, setShowGrap] = useState(false);
 
-  useEffect(() => {
+   useEffect(() => {
     getTrades({ token, password, rates, dispatch });
   }, [token, password]);
 
@@ -39,7 +38,7 @@ const Home = () => {
     }
   }, [rates]);
 
-  useEffect(() => {
+ /*  useEffect(() => {
     if (typeof window !== "undefined") {
       const localToken = localStorage.getItem("token");
       const localPassword = localStorage.getItem("password");
@@ -55,7 +54,7 @@ const Home = () => {
         setShowLogin(true);
       }
     }
-  }, []);
+  }, []); */
 
   const onCloseAddHandler = () => {
     setOpenAddDialog(false);
