@@ -24,7 +24,7 @@ const Home = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showGraph, setShowGrap] = useState(false);
 
-   useEffect(() => {
+  useEffect(() => {
     getTrades({ token, password, rates, dispatch });
   }, [token, password]);
 
@@ -39,16 +39,15 @@ const Home = () => {
   }, [rates]);
 
   useEffect(() => {
+    console.log("useEffect home")
     if (typeof window !== "undefined") {
       const localToken = localStorage.getItem("token");
       const localPassword = localStorage.getItem("password");
-      if (localToken && localPassword) {
+      console.log("user,pass", localToken, localPassword)
+      if (localToken && localPassword && localToken !== token && localPassword !== password) {
         dispatch({
-          type: SET_USER_DATA,
-          payload: {
-            password: localPassword,
-            token: localToken,
-          },
+          password: localPassword,
+          token: localToken,
         });
       } else {
         setShowLogin(true);
