@@ -21,15 +21,15 @@ const LiveRateUpdater = ({ exchangeKey }) => {
   useEffect(() => {
     if (lastMessage && !paused) {
       const parsedMessage = JSON.parse(lastMessage.data);
-      parsedMessage?.a &&
-        parsedMessage.a[0] &&
-        dispatch({
-          type: UPDATE_RATE,
-          payload: {
-            exchangeKey: exchangeKey,
-            rate: parseFloat(parsedMessage.a[0][0])
-          },
-        });
+      // parsedMessage?.a &&
+      //   parsedMessage.a[0] &&
+      //   dispatch({
+      //     type: UPDATE_RATE,
+      //     payload: {
+      //       exchangeKey: exchangeKey,
+      //       rate: parseFloat(parsedMessage.a[0][0])
+      //     },
+      //   });
     }
     return () => {
       //cleanup

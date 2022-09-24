@@ -10,10 +10,7 @@ export const getTrades = async ({ token, password, rate, dispatch }) => {
     rate: rate,
   });
   if (fetchedTrades) {
-    dispatch({
-      type: FETCH_TRADES,
-      payload: fetchedTrades,
-    });
+    dispatch({trades: fetchedTrades});
   }
 };
 

@@ -3,15 +3,15 @@ import {
   Grid,
   List,
   ListItem,
-  ListItemSecondaryAction,
+  ListItemSecondaryAction
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/Delete";
-import React, { useContext } from "react";
+import React from "react";
 import { deleteRow } from "../../services/trades";
-import { Context } from "../../store";
+import useAppContext from "../../store";
 
 const MobileListItem = ({ trade }) => {
-  const { state, dispatch } = useContext(Context);
+  const { state, dispatch } = useAppContext()
   const { rate, token, password } = state || {};
 
   const handleDeleteButtonClick = (id) => {

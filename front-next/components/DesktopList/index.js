@@ -1,12 +1,13 @@
 import { DataGrid } from "@material-ui/data-grid";
 import DeleteIcon from "@material-ui/icons/Delete";
-import React, { useContext } from "react";
+import React from "react";
 import NumberFormat from "react-number-format";
 import { deleteRow } from "../../services/trades";
-import { Context } from "../../store";
+import useAppContext from "../../store";
 
 const DesktopList = ({ trades }) => {
-  const { state, dispatch } = useContext(Context);
+  const { state, dispatch } = useAppContext()
+
   const { rate, token, password } = state || {};
 
   const FormatNumber = (num, decimals = 2) => (

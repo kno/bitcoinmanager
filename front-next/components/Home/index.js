@@ -1,112 +1,116 @@
-import { AppBar, Button, Toolbar } from "@material-ui/core";
-import Hidden from "@material-ui/core/Hidden";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import React, { useEffect, useState } from "react";
-import logo from "../../assets/bitcoinlogo.svg";
-import { getTrades, mapTrades } from "../../services/trades";
-import { FETCH_TRADES, SET_USER_DATA } from "../../store/actions";
-import Add from "../Add";
-import DesktopList from "../DesktopList";
-// import Graph from "./graph";
-import Image from "next/image";
-import useAppContext from "../../store";
-import LiveRateUpdater from "../LiveRateUpdater";
-import Login from "../Login";
-import MobileList from "../MobileList";
-import "./Home.module.scss";
+import { AppBar, Button, Toolbar } from "@material-ui/core"
+import Hidden from "@material-ui/core/Hidden"
+import ExitToAppIcon from "@material-ui/icons/ExitToApp"
+import React, { useEffect, useState } from "react"
+import logo from "../../assets/bitcoinlogo.svg"
+import { getTrades, mapTrades } from "../../services/trades"
+import { FETCH_TRADES, SET_USER_DATA } from "../../store/actions"
+import Add from "../Add"
+import DesktopList from "../DesktopList"
+// import Graph from "./graph"
+import Image from "next/image"
+import useAppContext from "../../store"
+import LiveRateUpdater from "../LiveRateUpdater"
+import Login from "../Login"
+import MobileList from "../MobileList"
+import "./Home.module.scss"
 
 const Home = () => {
-  const { state, dispatch } = useAppContext();
-  const { trades = [], rates, token, password } = state || {};
+  const { state, dispatch } = useAppContext()
+  console.log('state', state)
+  const { trades = [], rates, token, password } = state || {}
 
-  const [totals, setTotals] = useState([]);
-  const [isOpenAddDialog, setOpenAddDialog] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [showGraph, setShowGrap] = useState(false);
-
-  useEffect(() => {
-    getTrades({ token, password, rates, dispatch });
-  }, [token, password]);
+  const [totals, setTotals] = useState([])
+  const [isOpenAddDialog, setOpenAddDialog] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
+  const [showGraph, setShowGrap] = useState(false)
 
   useEffect(() => {
-    if (trades && trades.length > 0) {
-      const mappedTrades = mapTrades({ trades: trades, rate: rates['btceur'] });
-      dispatch({
-        type: FETCH_TRADES,
-        payload: mappedTrades,
-      });
+    if (token && password) {
+      getTrades({ token, password, rates, dispatch })
     }
-  }, [rates]);
-
+  }, [token, password])
+  /*
+    useEffect(() => {
+      if (trades && trades.length > 0) {
+        // const mappedTrades = mapTrades({ trades: trades, rate: rates['btceur'] })
+        // dispatch({
+        //   type: FETCH_TRADES,
+        //   payload: mappedTrades,
+        // })
+      }
+    }, [rates])
+   */
   useEffect(() => {
     console.log("useEffect home")
     if (typeof window !== "undefined") {
-      const localToken = localStorage.getItem("token");
-      const localPassword = localStorage.getItem("password");
-      console.log("user,pass", localToken, localPassword)
+      const localToken = localStorage.getItem("token")
+      const localPassword = localStorage.getItem("password")
+      console.log(`LT: ${localToken} LP: ${localPassword} T:${token} P:${password}`)
       if (localToken && localPassword && localToken !== token && localPassword !== password) {
+        console.log('dispatch')
         dispatch({
           password: localPassword,
           token: localToken,
-        });
+        })
       } else {
-        setShowLogin(true);
+        setShowLogin(true)
       }
     }
-  }, []);
+  }, [])
 
   const onCloseAddHandler = () => {
-    setOpenAddDialog(false);
-    getTrades({ token, password, rates, dispatch });
-  };
-
-  useEffect(() => {
-    setTotals({
-      id: 0,
-      date: "Total:",
-      amount: trades?.reduce((a, b) => a + b.amount, 0),
-      btc: trades?.reduce((a, b) => a + b.btc, 0),
-      value: trades?.reduce((a, b) => a + b.value, 0),
-      benefit: trades?.reduce((a, b) => a + b.benefit, 0),
-    });
-  }, [trades]);
+    setOpenAddDialog(false)
+    // getTrades({ token, password, rates, dispatch })
+  }
+  /*
+    useEffect(() => {
+      setTotals({
+        id: 0,
+        date: "Total:",
+        amount: trades?.reduce((a, b) => a + b.amount, 0),
+        btc: trades?.reduce((a, b) => a + b.btc, 0),
+        value: trades?.reduce((a, b) => a + b.value, 0),
+        benefit: trades?.reduce((a, b) => a + b.benefit, 0),
+      })
+    }, [trades]) */
 
   const onLoginHandler = (recievedToken, recievedPassword) => {
     if (recievedToken && recievedPassword) {
-      localStorage.setItem("token", recievedToken);
-      localStorage.setItem("password", recievedPassword);
-      dispatch({
-        type: SET_USER_DATA,
-        payload: {
-          password: recievedPassword,
-          token: recievedToken,
-        },
-      });
-      setShowLogin(false);
-      getTrades({ token, password, rates, dispatch });
+      localStorage.setItem("token", recievedToken)
+      localStorage.setItem("password", recievedPassword)
+      // dispatch({
+      //   type: SET_USER_DATA,
+      //   payload: {
+      //     password: recievedPassword,
+      //     token: recievedToken,
+      //   },
+      // })
+      setShowLogin(false)
+      getTrades({ token, password, rates, dispatch })
     }
-  };
+  }
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("password");
-    dispatch({
-      type: SET_USER_DATA,
-      payload: {
-        password: "",
-        token: "",
-      },
-    });
-    dispatch({
-      type: FETCH_TRADES,
-      payload: [],
-    });
-    setShowLogin(true);
-  };
+    localStorage.removeItem("token")
+    localStorage.removeItem("password")
+    // dispatch({
+    //   type: SET_USER_DATA,
+    //   payload: {
+    //     password: "",
+    //     token: "",
+    //   },
+    // })
+    // dispatch({
+    //   type: FETCH_TRADES,
+    //   payload: [],
+    // })
+    setShowLogin(true)
+  }
 
   const showHideGraph = () => {
-    setShowGrap(!showGraph);
-  };
+    setShowGrap(!showGraph)
+  }
 
   return (
     <div className="Home">
@@ -125,12 +129,12 @@ const Home = () => {
         />
         <h2>Welcome to Lincoin Manager</h2>
       </div>
-      <div className={"glow"}>
+      <div className="glow">
         <AppBar position="static">
           <Toolbar>
             {/* <AddIcon onClick={() => setOpenAddDialog(true)} /> */}
-            <div className={"grow"}>
-              Current Rate:{" "}
+            <div className="grow">
+              Current Rate:
               <LiveRateUpdater exchangeKey="btceur" />
             </div>
             <ExitToAppIcon onClick={logout} />
@@ -164,7 +168,7 @@ const Home = () => {
       {/* {showGraph && <Graph />} */}
       <ul className="Home-resources"></ul>
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home
