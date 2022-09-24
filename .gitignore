@@ -1,2 +1,3 @@
 node_modules
 mariadb_data
+.vscode/launch.json
